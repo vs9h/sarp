@@ -27,7 +27,6 @@ struct arp_header {
 };
 
 void process_packet(unsigned char*);
-void print_ip_header(unsigned char*);
 void print_arp_packet(unsigned char* Buffer);
 
 FILE *logfile;
@@ -73,38 +72,6 @@ void print_ip_address(unsigned char ip[], std::string msg) {
     fprintf(stdout, "   |-%s : %u.%u.%u.%u \n", msg.c_str(), ip[0], ip[1], ip[2], ip[3]);
 }
 
-void print_ethernet_header(unsigned char* Buffer) {
-    struct ethhdr *eth = (struct ethhdr *)Buffer;
-    fprintf(stdout , "\nEthernet Header\n");
-    print_mac_address(eth->h_dest, "Destination Address");
-    print_mac_address(eth->h_source, "Source Address     ");
-    fprintf(stdout , "   |-Protocol            : %u \n",(unsigned short)eth->h_proto);
-}
-
-void print_ip_header(unsigned char* Buffer) {
-    print_ethernet_header(Buffer);
-    struct iphdr *iph = (struct iphdr *)(Buffer + sizeof(struct ethhdr));
-
-    memset(&source, 0, sizeof(source));
-    source.sin_addr.s_addr = iph->saddr;
-
-    memset(&dest, 0, sizeof(dest));
-    dest.sin_addr.s_addr = iph->daddr;
-
-    fprintf(logfile, "\n");
-    fprintf(logfile, "IP Header\n");
-    fprintf(logfile, "   |-IP Version        : %d\n",(unsigned int)iph->version);
-    fprintf(logfile, "   |-IP Header Length  : %d DWORDS or %d Bytes\n",(unsigned int)iph->ihl,((unsigned int)(iph->ihl))*4);
-    fprintf(logfile, "   |-Type Of Service   : %d\n",(unsigned int)iph->tos);
-    fprintf(logfile, "   |-IP Total Length   : %d  Bytes(Size of Packet)\n",ntohs(iph->tot_len));
-    fprintf(logfile, "   |-Identification    : %d\n",ntohs(iph->id));
-    fprintf(logfile, "   |-TTL      : %d\n",(unsigned int)iph->ttl);
-    fprintf(logfile, "   |-Protocol : %d\n",(unsigned int)iph->protocol);
-    fprintf(logfile, "   |-Checksum : %d\n",ntohs(iph->check));
-    fprintf(logfile, "   |-Source IP        : %s\n",inet_ntoa(source.sin_addr));
-    fprintf(logfile, "   |-Destination IP   : %s\n",inet_ntoa(dest.sin_addr));
-}
-
 bool is_equals(const std::string& a, const std::string& b) {
     return std::equal(a.begin(), a.end(),
                       b.begin(), b.end(),
@@ -145,8 +112,6 @@ void print_arp_packet(unsigned char* Buffer) {
     arp_header* arph = (struct arp_header *)(Buffer + iphdrlen + sizeof(struct ethhdr));
 
     fprintf(logfile , "\n\n***********************ARP Packet*************************\n");
-
-    print_ip_header(Buffer);
 
     fprintf(logfile , "\n");
     fprintf(logfile , "ARP Header\n");
