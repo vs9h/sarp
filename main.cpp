@@ -38,11 +38,11 @@ int main() {
     int saddr_size , data_size;
     struct sockaddr saddr;
 
-    unsigned char *buffer = (unsigned char *) malloc(65536);
+    unsigned char *buffer = (unsigned char *)malloc(65536);
     logfile = stdout;
 
     printf("Starting...\n");
-    int sock_raw = socket( AF_PACKET , SOCK_RAW , htons(ETH_P_ARP));
+    int sock_raw = socket(AF_PACKET , SOCK_RAW, htons(ETH_P_ARP));
 
     if (sock_raw < 0) {
         perror("Socket Error");
@@ -50,7 +50,7 @@ int main() {
     } else {
         while (2 + 2 == 4) {
             saddr_size = sizeof saddr;
-            data_size = recvfrom(sock_raw, buffer, 65536, 0, &saddr, (socklen_t * ) & saddr_size);
+            data_size = recvfrom(sock_raw, buffer, 65536, 0, &saddr, (socklen_t *) &saddr_size);
             if (data_size < 0) {
                 return 1;
             } else {
@@ -73,8 +73,7 @@ void print_ip_address(unsigned char ip[], std::string msg) {
     fprintf(stdout, "   |-%s : %u.%u.%u.%u \n", msg.c_str(), ip[0], ip[1], ip[2], ip[3]);
 }
 
-void print_ethernet_header(unsigned char* Buffer)
-{
+void print_ethernet_header(unsigned char* Buffer) {
     struct ethhdr *eth = (struct ethhdr *)Buffer;
     fprintf(stdout , "\nEthernet Header\n");
     print_mac_address(eth->h_dest, "Destination Address");
@@ -82,10 +81,9 @@ void print_ethernet_header(unsigned char* Buffer)
     fprintf(stdout , "   |-Protocol            : %u \n",(unsigned short)eth->h_proto);
 }
 
-void print_ip_header(unsigned char* Buffer)
-{
+void print_ip_header(unsigned char* Buffer) {
     print_ethernet_header(Buffer);
-    struct iphdr *iph = (struct iphdr *)(Buffer  + sizeof(struct ethhdr) );
+    struct iphdr *iph = (struct iphdr *)(Buffer + sizeof(struct ethhdr));
 
     memset(&source, 0, sizeof(source));
     source.sin_addr.s_addr = iph->saddr;
@@ -141,7 +139,7 @@ std::string find_company_name_by_mac(unsigned char mac[MAC_LENGTH]) {
 void print_arp_packet(unsigned char* Buffer) {
     unsigned short iphdrlen;
 
-    struct iphdr *iph = (struct iphdr *)( Buffer  + sizeof(struct ethhdr));
+    struct iphdr *iph = (struct iphdr *)(Buffer  + sizeof(struct ethhdr));
     iphdrlen = iph->ihl*4;
 
     arp_header* arph = (struct arp_header *)(Buffer + iphdrlen + sizeof(struct ethhdr));
